@@ -8,7 +8,8 @@ import {
   VerticalNavSecondaryItem,
   Masthead,
   Icon,
-  MenuItem
+  MenuItem,
+  layout
 } from 'patternfly-react';
 import pfLogo from 'patternfly/dist/img/logo-alt.svg';
 import pfBrand from 'patternfly/dist/img/brand-alt.svg';
@@ -17,6 +18,8 @@ import './App.css';
 
 class App extends React.Component {
   state = {
+    isMobile: layout.is('mobile'),
+    showMobileNav: false,
     collapse: false
   };
 
@@ -25,6 +28,19 @@ class App extends React.Component {
 
     this.menu = routes();
   }
+
+  componentDidMount() {
+    layout.addChangeListener(this.onLayoutChange);
+  }
+
+  componentWillUnmount() {
+    layout.removeChangeListener(this.onLayoutChange);
+  }
+
+  onLayoutChange = newLayout => {
+    this.setState({ isMobile: newLayout === 'mobile' });
+  };
+
   handleNavClick = (event: Event) => {
     event.preventDefault();
     const target = (event.currentTarget: any);
@@ -65,7 +81,11 @@ class App extends React.Component {
   };
 
   onCollapse = () => {
-    this.setState({ collapse: !this.state.collapse });
+    if (this.state.isMobile) {
+      this.setState({ showMobileNav: !this.state.showMobileNav });
+    } else {
+      this.setState({ collapse: !this.state.collapse });
+    }
   };
 
   navigateTo = path => {
@@ -134,7 +154,9 @@ class App extends React.Component {
         <VerticalNav
           persistentSecondary={false}
           hideMasthead
+          isMobile={this.state.isMobile}
           navCollapsed={this.state.collapse}
+          showMobileNav={this.state.showMobileNav}
         >
           {vertNavItems}
         </VerticalNav>
